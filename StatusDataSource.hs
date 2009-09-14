@@ -3,21 +3,19 @@
              DeriveDataTypeable, ExistentialQuantification #-}
 module StatusDataSource where
 import HOC 
-import Cocoa hiding (request, toNSString, user, status)
+import Cocoa hiding (request, user, status)
 import AppKit.NSTableColumn(identifier)
 
 import Control.Concurrent
 import Control.Monad
 import Data.Maybe
 
+import Selectors
 import Utilities
 import TwitterClient
 
 $(declareClass "StatusDataSource" "NSObject")
 
-$(declareSelector "checkForUpdates" [t| IO () |])
-$(declareSelector "startLoop" [t| IO () |])
-$(declareSelector "stopLoop" [t| IO () |])
 
 $(exportClass "StatusDataSource" "sds_" [
     InstanceVariable "statuses" [t| [TwitterStatus] |] [| [] |],
@@ -67,8 +65,8 @@ sds_tableViewObjectValueForTableColumnRow tv column row self = do
   label <- haskellString $ (fromID ident :: NSString ())
   let st = stats !! (fromIntegral row)
   case label of
-    "user" -> liftM toID $ toNSString $ screenName $ user st
-    "tweet" -> liftM toID $ toNSString $ status st
+    "user" -> return $ toID $ toNSString $ screenName $ user st
+    "tweet" -> return $ toID $ toNSString $ status st
 
 sds_stopLoop self = do
   tid <- self #. _timerID

@@ -4,26 +4,20 @@
 module Utilities where
 import Control.Monad
 import HOC 
-import Cocoa hiding (request, toNSString)
+import Cocoa hiding (request)
 import Foundation.NSUserDefaults
-
-toNSString str = _NSString # stringWithHaskellString str
 
 sharedApp = _NSApplication # sharedApplication
 userDefaults :: IO (NSUserDefaults ())
 userDefaults = _NSUserDefaults # standardUserDefaults
-getDefault key = do k <- toNSString key
-                    obj <- userDefaults >>= stringForKey k
+getDefault key = do obj <- userDefaults >>= stringForKey (toNSString key)
                     if obj == nil then _NSString # stringWithHaskellString ""
                                   else return obj
 
 setDefault key value = do
-  k <- toNSString key
-  userDefaults >>= setObjectForKey k value
+  userDefaults >>= setObjectForKey (toNSString key) value
 
 userName = getDefault "user" >>= haskellString
 passWord = getDefault "pass" >>= haskellString
 interval :: IO Float
-interval = do ud <- userDefaults
-              key <- toNSString "interval"
-              ud # floatForKey key 
+interval = userDefaults >>= floatForKey (toNSString "interval") 

@@ -10,7 +10,7 @@ data User = User { screenName :: String, name :: String, userId :: Integer } der
 
 tweet user pass stat = browse $ tweeter user pass stat
 
-getText filt target = concatMap (maybe "" encodeString . fst)  $ (textlabelled filt) target
+getText filt target = concatMap (maybe "" id . fst)  $ (textlabelled filt) target
 
 getFriendsTimeLine user pass args = do
   xml <- browse $ getTimeLine "friends" user pass args
