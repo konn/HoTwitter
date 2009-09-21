@@ -11,7 +11,7 @@ data User = User { screenName :: String, name :: String, userId :: Integer } der
 
 tweet user pass stat = browse $ tweeter user pass stat
 
-getText filt target = concatMap (render.content) $ xmlUnEscapeContent stdXmlEscaper $ (filt /> txt) target
+getText filt target = concatMap (render.content) $ xmlUnEscapeContent stdXmlEscaper $ (deepest $ filt /> txt) target
 
 getFriendsTimeLine user pass args = do
   xml <- browse $ getTimeLine "friends" user pass args
