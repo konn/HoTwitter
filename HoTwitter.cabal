@@ -2,10 +2,10 @@ name: HoTwitter
 Cabal-Version: >= 1.2
 version: 1.0
 build-type: Custom
-
+ 
 executable: HoTwitter
 main-is: Main.hs
-build-depends: base, mtl, utf8-string, HTTP, HaXml,
+build-depends: base, mtl, utf8-string, HTTP, HaXml >= 1.9,
                HOC, HOC-Cocoa, HOC-Foundation, HOC-AppKit
                
 -- reduce executable size by *a lot*:

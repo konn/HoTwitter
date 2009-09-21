@@ -49,7 +49,7 @@ tc_showPref sender self = do
 
 closePrefWithCode code self = do
   app <- _NSApplication # sharedApplication
-  prfw <- (self #. _prefWindow)
+  prfw <- self #. _prefWindow
   app # endSheetReturnCode prfw code
 
 tc_cancelPref sender self = self # closePrefWithCode 0
@@ -68,9 +68,8 @@ tc_post sender self = do
   pass <- passWord
   user <- userName
   msg <- sender # stringValue >>= haskellString
-  str <- stringWithHaskellString "" _NSString
   unless (Prelude.null pass && Prelude.null user) $ (forkOS $ withAutoreleasePool $ do 
-    sender # setStringValue str
+    sender # setStringValue (toNSString "")
     tweet user pass $ encodeString msg
     return ()) >> return ()
 

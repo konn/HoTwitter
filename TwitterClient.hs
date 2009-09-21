@@ -2,6 +2,7 @@ module TwitterClient  where
 import Network.Browser
 import Network.HTTP hiding (user)
 import Text.XML.HaXml
+import Text.XML.HaXml.Escape
 import Text.XML.HaXml.Pretty
 import Codec.Binary.UTF8.String
 
@@ -10,21 +11,21 @@ data User = User { screenName :: String, name :: String, userId :: Integer } der
 
 tweet user pass stat = browse $ tweeter user pass stat
 
-getText filt target = concatMap (maybe "" id . fst)  $ (textlabelled filt) target
+getText filt target = concatMap (render.content) $ xmlUnEscapeContent stdXmlEscaper $ (filt /> txt) target
 
 getFriendsTimeLine user pass args = do
   xml <- browse $ getTimeLine "friends" user pass args
   let Document _ _ tmp _ = xmlParse "timeline" xml
-      elems = CElem $ xmlUnEscape stdXmlEscaper tmp
-      in return $ map buildMsg $ (tag "statuses" /> tag "status") elems
+      elms = CElem tmp undefined
+      in return $ map buildMsg $ (tag "statuses" /> tag "status") elms
   where buildMsg conts =
           let usrTag = head $ (tag "status" /> tag "user") conts
-              scname = getText (deepest $ tag "screen_name" /> txt) usrTag
-              uname = getText (deepest $ tag "name" /> txt) usrTag
-              uid   = read $ getText (deepest $ tag "id" /> txt) usrTag
+              scname = getText (tag "screen_name") usrTag
+              uname = getText (tag "name") usrTag
+              uid   = read $ getText (deepest $ tag "id") usrTag
               usr = User {screenName = scname, name = uname, userId = uid}
-              text = getText (tag "status" /> tag "text" /> txt) conts
-              sid  = read $ getText (tag "status" /> tag "id" /> txt) conts
+              text = getText (tag "status" /> tag "text") conts
+              sid  = read $ getText (tag "status" /> tag "id") conts
               in Status {user=usr, status=text, statusId=sid}
 
 getTimeLine kind user pass args = do 
