@@ -24,9 +24,14 @@ getFriendsTimeLine user pass args = do
               uname = getText (tag "name") usrTag
               uid   = read $ getText (deepest $ tag "id") usrTag
               usr = User {screenName = scname, name = uname, userId = uid}
-              text = getText (tag "status" /> tag "text") conts
+              text = unescapeString $ getText (tag "status" /> tag "text") conts
               sid  = read $ getText (tag "status" /> tag "id") conts
               in Status {user=usr, status=text, statusId=sid}
+
+unescapeString :: String -> String
+unescapeString str = let (Document _ _ es _) = xmlParse "" $ "<dummy>" ++ str ++ "</dummy>"
+                     in concatMap (render . content) . xmlUnEscapeContent stdXmlEscaper . deepest txt $ (CElem es undefined)
+
 
 getTimeLine kind user pass args = do 
   setAuthorityGen (const.const(return $ Just (user, pass)))
